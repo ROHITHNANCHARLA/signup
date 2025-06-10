@@ -112,15 +112,15 @@ export default function AuthPage() {
     setForm({ ...form, [name]: value });
 
     if (name === "email") {
-      if (value.endsWith("@sidharthcollege.edu")) {
+      if (value.endsWith("@siddhartha.co.in")) {
         setIsSIDHARTHStudent(true);
         setForm((prev) => ({
           ...prev,
-          firstName: "John",
-          lastName: "Doe",
+          firstName: "First Name from DB",
+          lastName: "Last Name from DB",
           studentId: "SIDHARTH12345",
-          collegeName: "SIDHARTH College",
-          dob: "2000-01-01",
+          collegeName: "SIDDHARTHA College",
+          dob: "2002-01-01",
         }));
       } else {
         setIsSIDHARTHStudent(false);
@@ -131,8 +131,7 @@ export default function AuthPage() {
   const validateForm = (): boolean => {
     const newErrors: ErrorState = {};
     if (!form.email) newErrors.email = "Email is required";
-    if (!form.password) newErrors.password = "Password is required";
-
+    
     if (mode === "signup") {
       if (!form.collegeName) newErrors.collegeName = "College name is required";
       if (isSIDHARTHStudent && !form.studentId) newErrors.studentId = "Student ID is required";
@@ -149,6 +148,8 @@ export default function AuthPage() {
       if (!validatePassword(form.password)) newErrors.password = "Password must include uppercase, lowercase, number, special char, and be at least 8 characters long";
       if (form.password !== form.confirmPassword) newErrors.confirmPassword = "Passwords do not match";
     }
+
+    if (!form.password) newErrors.password = "Password is required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
