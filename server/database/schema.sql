@@ -1,0 +1,22 @@
+CREATE DATABASE IF NOT EXISTS college_auth;
+USE college_auth;
+
+CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  firstName VARCHAR(100),
+  lastName VARCHAR(100),
+  department VARCHAR(100),
+  degree VARCHAR(100),
+  studentId VARCHAR(50),
+  collegeName VARCHAR(255),
+  phone VARCHAR(20)
+);
+
+CREATE TABLE IF NOT EXISTS password_resets (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) NOT NULL,
+  otp VARCHAR(10) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
