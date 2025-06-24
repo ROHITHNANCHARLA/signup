@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db");
+const sendOTP = require("../utils/emailService");
 
 // Temporary OTP store
 const otps = {};
@@ -88,34 +89,54 @@ router.post("/check-email", (req, res) => {
   }
 });
 
-// --- Send OTP ---
-router.post("/send-otp", (req, res) => {
+
+// Send OTP & store in DB
+router.post("/send-otp", async (req, res) => {
   const { email } = req.body;
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  otps[email] = otp;
-  console.log(`OTP for ${email}: ${otp}`);
-  res.send("OTP sent to registered email (mocked)");
+
+  const sql = "INSERT INTO password_reset_otps (email, otp) VALUES (?, ?)";
+  db.query(sql, [email, otp], async (err) => {
+    if (err) return res.status(500).send("Database error");
+    try {
+      await sendOTP(email, otp);
+      res.send("OTP sent successfully");
+    } catch (err) {
+      console.error("Email error:", err);
+      res.status(500).send("Failed to send OTP----" + err);
+    }
+  });
 });
 
-// --- Verify OTP ---
+// Verify OTP
 router.post("/verify-otp", (req, res) => {
   const { email, otp } = req.body;
-  if (otps[email] && otps[email] === otp) {
-    res.send("OTP verified");
-  } else {
-    res.status(401).send("Invalid OTP");
-  }
+
+  const sql = `SELECT * FROM password_reset_otps 
+               WHERE email = ? AND otp = ? AND used = FALSE 
+               AND created_at >= NOW() - INTERVAL 10 MINUTE`;
+
+  db.query(sql, [email, otp], (err, results) => {
+    if (err) return res.status(500).send("DB error");
+    if (results.length === 0) return res.status(401).send("Invalid or expired OTP");
+
+    const updateSql = `UPDATE password_reset_otps SET used = TRUE WHERE id = ?`;
+    db.query(updateSql, [results[0].id], () => {
+      res.send("OTP verified");
+    });
+  });
 });
 
-// --- Reset Password ---
+// Reset Password
 router.post("/reset-password", (req, res) => {
   const { email, password } = req.body;
   const sql = "UPDATE users SET password = ? WHERE email = ?";
 
   db.query(sql, [password, email], (err) => {
-    if (err) return res.status(500).send("Password reset failed");
+    if (err) return res.status(500).send("Password update failed");
     res.send("Password reset successful");
   });
 });
+
 
 module.exports = router;

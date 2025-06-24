@@ -185,8 +185,19 @@ CREATE TABLE users (
   phone VARCHAR(20),
   department VARCHAR(100),
   degree VARCHAR(100),
-  password VARCHAR(255)
+  password VARCHAR(255),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 );
+
+
+CREATE TABLE IF NOT EXISTS password_reset_otps (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) NOT NULL,
+  otp VARCHAR(10) NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  used BOOLEAN DEFAULT FALSE
+);
+
 ```
 
 ---
@@ -220,9 +231,107 @@ INSERT INTO users (
 );
 ```
 
+
+
+# EMAIL SETUP..
 ---
 
-Once this is done, your MySQL setup is ready.
-Next, I’ll help verify your backend is connected properly.
+## ✅ Recommended: Use **Gmail SMTP** (Easiest for Development)
 
-Want me to regenerate the `.env` file and server start steps too?
+---
+
+### 🔧 Step 1: Enable "Less Secure App Access" (for dev only)
+
+> Gmail has strict security, so you need to enable access or use an **App Password** if 2FA is on.
+
+1. Go to your Google Account → Security.
+2. If 2FA is **off**:
+
+   * Enable: [Less secure apps access](https://myaccount.google.com/lesssecureapps)
+3. If 2FA is **on**:
+
+   * Go to [App Passwords](https://myaccount.google.com/apppasswords) → Create one for "Mail"
+
+---
+
+### 🔧 Step 2: Install Nodemailer in backend
+
+```bash
+cd backend
+npm install nodemailer
+```
+
+---
+
+### 🔧 Step 3: Create `emailService.js` in `backend/utils/`
+
+```js
+const nodemailer = require("nodemailer");
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,      // your Gmail ID
+    pass: process.env.EMAIL_PASS       // your Gmail password or App Password
+  }
+});
+
+const sendOTP = (email, otp) => {
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Your OTP for Password Reset",
+    text: `Your OTP is: ${otp}`
+  };
+
+  return transporter.sendMail(mailOptions);
+};
+
+module.exports = sendOTP;
+```
+
+---
+
+### 🔧 Step 4: Use in `/send-otp` route
+
+Update `authRoutes.js`:
+
+```js
+const sendOTP = require("../utils/emailService");
+
+router.post("/send-otp", async (req, res) => {
+  const { email } = req.body;
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  otps[email] = otp;
+
+  try {
+    await sendOTP(email, otp);
+    res.send("OTP sent to your email.");
+  } catch (err) {
+    console.error("Failed to send OTP:", err);
+    res.status(500).send("Failed to send OTP");
+  }
+});
+```
+
+---
+
+### 🔧 Step 5: Update `.env` in `backend/`
+
+```env
+EMAIL_USER=your_gmail@gmail.com
+EMAIL_PASS=your_app_password_or_password
+```
+
+---
+
+### ✅ That's It!
+
+You now have:
+
+* Secure and real email delivery for OTPs
+* Proper abstraction via `emailService.js`
+* A setup that can scale later (e.g., replace with SendGrid)
+
+---
+
