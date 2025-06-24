@@ -96,3 +96,133 @@ For Gmail email sending, use an App Password if you have 2FA enabled.
 Passwords are stored hashed for security.
 
 OTP codes are 6-digit numeric and expire after use.
+
+
+
+
+
+# TO SETUP DATABASE..
+
+## ✅ Step-by-Step MySQL Setup on Windows
+
+---
+
+### **1. Install MySQL Server & MySQL Workbench**
+
+* If not already installed:
+
+  * Download from: [https://dev.mysql.com/downloads/installer/](https://dev.mysql.com/downloads/installer/)
+  * Choose **MySQL Installer for Windows (Community)**.
+  * During installation:
+
+    * Install both **MySQL Server** and **MySQL Workbench**.
+    * Set a root password you’ll remember (e.g., `root123`).
+
+---
+
+### **2. Start MySQL Server**
+
+* Open **MySQL Workbench**.
+* Connect using:
+
+  * **Hostname:** `localhost`
+  * **Port:** `3306`
+  * **Username:** `root`
+  * **Password:** (the one you set)
+
+---
+
+### **3. Create Database & Table**
+
+#### Option A: Use MySQL Workbench (GUI)
+
+1. Open **Workbench** and connect.
+2. Click on **"Create a new schema"**, name it `college_auth`, and click **Apply**.
+3. Select the database and run this query (Ctrl + Enter):
+
+```sql
+USE college_auth;
+
+CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  collegeName VARCHAR(255),
+  studentId VARCHAR(100),
+  firstName VARCHAR(100),
+  lastName VARCHAR(100),
+  phone VARCHAR(20),
+  department VARCHAR(100),
+  degree VARCHAR(100),
+  password VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+---
+
+#### Option B: Using Command Line
+
+1. Open **Command Prompt**.
+2. Login to MySQL:
+
+```bash
+mysql -u root -p
+```
+
+3. Then paste:
+
+```sql
+CREATE DATABASE college_auth;
+USE college_auth;
+
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  collegeName VARCHAR(255),
+  studentId VARCHAR(100),
+  firstName VARCHAR(100),
+  lastName VARCHAR(100),
+  phone VARCHAR(20),
+  department VARCHAR(100),
+  degree VARCHAR(100),
+  password VARCHAR(255)
+);
+```
+
+---
+
+### **4. Update Backend Connection**
+
+In `backend/db.js`, match the DB credentials:
+
+```js
+const db = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "your_password", // <-- change this
+  database: "college_auth",
+});
+```
+
+---
+
+### ✅ Sample Test User (Optional)
+
+Run this SQL in Workbench to insert a test user:
+
+```sql
+INSERT INTO users (
+  email, collegeName, studentId, firstName, lastName, phone,
+  department, degree, password
+) VALUES (
+  'test@siddharatha.co.in', 'Siddharatha College', 'SID12345',
+  'Test', 'User', '9999999999', 'Engineering', 'B.Tech', 'Test@1234'
+);
+```
+
+---
+
+Once this is done, your MySQL setup is ready.
+Next, I’ll help verify your backend is connected properly.
+
+Want me to regenerate the `.env` file and server start steps too?

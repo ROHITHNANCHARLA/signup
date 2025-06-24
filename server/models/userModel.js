@@ -5,16 +5,19 @@ const TABLE_NAME = 'users';
 
 // Create user table SQL for reference (run in MySQL Workbench separately):
 /*
+USE college_auth;
+
 CREATE TABLE users (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  college_name VARCHAR(255) NOT NULL,
-  student_id VARCHAR(100) NOT NULL,
-  first_name VARCHAR(100) NOT NULL,
-  last_name VARCHAR(100) NOT NULL,
-  email VARCHAR(255) NOT NULL UNIQUE,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  collegeName VARCHAR(255),
+  studentId VARCHAR(100),
+  firstName VARCHAR(100),
+  lastName VARCHAR(100),
   phone VARCHAR(20),
-  dob DATE NOT NULL,
-  password VARCHAR(255) NOT NULL,
+  department VARCHAR(100),
+  degree VARCHAR(100),
+  password VARCHAR(255),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 */

@@ -20,25 +20,39 @@ export default function Signup() {
 
   const isSiddharathaStudent = form.email.endsWith("@siddharatha.co.in");
 
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
 
     if (name === "email" && value.endsWith("@siddharatha.co.in")) {
-      setForm((prev) => ({
-        ...prev,
-        collegeName: "Siddharatha College",
-        studentId: "SID" + Math.floor(Math.random() * 10000),
-        firstName: "Auto",
-        lastName: "Filled",
-      }));
+      try {
+        const res = await fetch("http://localhost:5000/api/check-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: value }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.collegeName) {
+            setForm((prev) => ({
+              ...prev,
+              ...data,
+              email: value, // preserve current email
+            }));
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching student data:", err);
+      }
     }
   };
+
 
   const validate = () => {
     const newErrors = {};
     if (!form.email) newErrors.email = "Email is required";
-    if (!form.password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$/)) {
+    if (!form.password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{8,}$/)) {
       newErrors.password =
         "Password must have 8 characters, uppercase, lowercase, number, and special character";
     }
@@ -80,13 +94,9 @@ export default function Signup() {
         <input name="collegeName" placeholder="College Name" onChange={handleChange} value={form.collegeName} disabled={isSiddharathaStudent} />
         <input name="studentId" placeholder="Student ID" onChange={handleChange} value={form.studentId} disabled={isSiddharathaStudent} />
 
-        {!isSiddharathaStudent && (
-          <>
-            <input name="firstName" placeholder="First Name" onChange={handleChange} value={form.firstName} />
-            <input name="lastName" placeholder="Last Name" onChange={handleChange} value={form.lastName} />
-            {errors.name && <p className="error">{errors.name}</p>}
-          </>
-        )}
+        <input name="firstName" placeholder="First Name" onChange={handleChange} value={form.firstName} disabled={isSiddharathaStudent} />
+        <input name="lastName" placeholder="Last Name" onChange={handleChange} value={form.lastName} disabled={isSiddharathaStudent} />
+        {errors.name && <p className="error">{errors.name}</p>}
 
         <input name="phone" placeholder="Phone" onChange={handleChange} value={form.phone} />
         <input name="department" placeholder="Department" onChange={handleChange} value={form.department} />
