@@ -1,23 +1,37 @@
 const nodemailer = require("nodemailer");
 
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: parseInt(process.env.EMAIL_PORT),
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+async function sendOTP(email, otp) {
+  try {
+    // Create test account
+    const testAccount = await nodemailer.createTestAccount();
 
-const sendOTP = (email, otp) => {
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: "Your OTP for Password Reset",
-    text: `Your OTP to reset your password is: ${otp}`
-  };
+    // Create transporter
+    const transporter = nodemailer.createTransport({
+      host: testAccount.smtp.host,
+      port: testAccount.smtp.port,
+      secure: testAccount.smtp.secure,
+      auth: {
+        user: testAccount.user,
+        pass: testAccount.pass,
+      },
+    });
 
-  return transporter.sendMail(mailOptions);
-};
+    // Send mail
+    const info = await transporter.sendMail({
+      from: '"Siddharatha College" <noreply@siddharatha.co.in>',
+      to: email,
+      subject: "Your OTP to reset the password",
+      text: `Your OTP is: ${otp}`,
+      html: `<b>Your OTP is: ${otp}</b>`,
+    });
+
+    const previewURL = nodemailer.getTestMessageUrl(info);
+    console.log("✅ Email preview URL:", previewURL);
+    return previewURL; // Send this to frontend for testing if needed
+  } catch (err) {
+    console.error("❌ Failed to send OTP email:", err);
+    throw err;
+  }
+}
 
 module.exports = sendOTP;

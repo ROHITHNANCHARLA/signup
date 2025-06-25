@@ -98,9 +98,9 @@ router.post("/check-registered-email", (req, res) => {
       return res.status(500).send("Database error");
     }
     if (results.length > 0) {
-      return true;
+      return res.json({ val: true });
     } else {
-      return false;
+      return res.json({ val: false });
     }
   });
 });
@@ -115,8 +115,8 @@ router.post("/send-otp", async (req, res) => {
   db.query(sql, [email, otp], async (err) => {
     if (err) return res.status(500).send("Database error");
     try {
-      await sendOTP(email, otp);
-      res.send("OTP sent successfully");
+      const msg = await sendOTP(email, otp);
+      return await res.json({ msg });
     } catch (err) {
       console.error("Email error:", err);
       res.status(500).send("Failed to send OTP----" + err);

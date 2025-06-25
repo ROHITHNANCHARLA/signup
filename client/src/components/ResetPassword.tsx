@@ -12,13 +12,16 @@ export default function ResetPassword() {
 
   const sendOTP = async () => {
     try {
-      const checkRegisteredUser = await fetch("http://localhost:5000/api/check-registered-email", {
+      const res = await fetch("http://localhost:5000/api/check-registered-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
 
-      if (checkRegisteredUser) {
+      if (!res.ok) throw new Error();
+      const resBody = await res.json();
+
+      if (resBody.val) {
         const res = await fetch("http://localhost:5000/api/send-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -26,7 +29,10 @@ export default function ResetPassword() {
         });
 
         if (!res.ok) throw new Error();
-        setInfo("OTP sent to your email.");
+        
+        const data = await res.json();
+          
+        setInfo("OTP sent to your email. " + data.msg);
         setError("");
         setStep(2);
       } else {
@@ -78,6 +84,20 @@ export default function ResetPassword() {
       setError("Failed to reset password. Try again.");
     }
   };
+
+  const Info = () => {
+    if (info.includes('https://ethereal.email/message')) {
+      const split = info.split('https');
+
+      return (<div>
+        {split[0]}
+        <br/>
+        <a target="_blank" href={`https${split[1]}`}>{`https${split[1]}`}</a>
+      </div>)
+    }
+
+    return <div>{info}</div>;
+  }
 
   return (
     <div className="auth-container">
@@ -134,7 +154,7 @@ export default function ResetPassword() {
         )}
 
         {error && <p className="error">{error}</p>}
-        {info && <p className="info">{info}</p>}
+        {info && <p className="info"><Info /></p>}
       </form>
     </div>
   );
