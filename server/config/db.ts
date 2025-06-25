@@ -7,7 +7,7 @@ const db = mysql.createConnection({
   database: "college_auth"
 });
 
-db.connect((err) => {
+db.connect((err: any) => {
   if (err) {
     console.error("❌ MySQL connection failed:", err);
   } else {
@@ -15,4 +15,4 @@ db.connect((err) => {
   }
 });
 
-module.exports = db;
+export default db;

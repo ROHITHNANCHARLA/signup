@@ -2,10 +2,11 @@
   "name": "college-auth-backend",
   "version": "1.0.0",
   "description": "Backend for college auth app with signup/login and OTP reset",
-  "main": "server.js",
+  "main": "server.ts",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "ts-node ./server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
   },
   "keywords": [],
   "author": "Your Name",
@@ -19,6 +20,10 @@
     "nodemailer": "^6.10.1"
   },
   "devDependencies": {
-    "nodemon": "^2.0.22"
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.4",
+    "nodemon": "^2.0.22",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   }
 }

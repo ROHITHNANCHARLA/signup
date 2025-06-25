@@ -1,6 +1,6 @@
 const nodemailer = require("nodemailer");
 
-async function sendOTP(email, otp) {
+async function sendOTP(email: string, otp: number) {
   try {
     // Create test account
     const testAccount = await nodemailer.createTestAccount();
