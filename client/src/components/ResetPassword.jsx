@@ -12,16 +12,27 @@ export default function ResetPassword() {
 
   const sendOTP = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/send-otp", {
+      const checkRegisteredUser = await fetch("http://localhost:5000/api/check-registered-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email }),
       });
 
-      if (!res.ok) throw new Error();
-      setInfo("OTP sent to your email.");
-      setError("");
-      setStep(2);
+      if (checkRegisteredUser) {
+        const res = await fetch("http://localhost:5000/api/send-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email })
+        });
+
+        if (!res.ok) throw new Error();
+        setInfo("OTP sent to your email.");
+        setError("");
+        setStep(2);
+      } else {
+        setError("Failed to send OTP. Ensure the email is registered.");
+        setInfo("");
+      }
     } catch {
       setError("Failed to send OTP. Ensure the email is registered.");
       setInfo("");

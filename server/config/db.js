@@ -1,16 +1,18 @@
-const mysql = require('mysql2/promise');
-const dotenv = require('dotenv');
+const mysql = require("mysql2");
 
-dotenv.config();
-
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'college_portal',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
+const db = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "009988", // ⬅️ replace with your actual password
+  database: "college_auth"
 });
 
-module.exports = pool;
+db.connect((err) => {
+  if (err) {
+    console.error("❌ MySQL connection failed:", err);
+  } else {
+    console.log("✅ MySQL connected!");
+  }
+});
+
+module.exports = db;

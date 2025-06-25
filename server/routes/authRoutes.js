@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../db");
+const db = require("../config/db");
 const sendOTP = require("../utils/emailService");
 
 // Temporary OTP store
@@ -87,6 +87,22 @@ router.post("/check-email", (req, res) => {
   } else {
     res.status(400).send("Not a Siddharatha College email");
   }
+});
+
+router.post("/check-registered-email", (req, res) => {
+  const { email } = req.body;
+  
+  const sql = "SELECT * FROM users WHERE email = ?";
+  db.query(sql, [email], (err, results) => {
+    if (err) {
+      return res.status(500).send("Database error");
+    }
+    if (results.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  });
 });
 
 

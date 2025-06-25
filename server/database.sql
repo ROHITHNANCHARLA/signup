@@ -1,16 +1,37 @@
-CREATE DATABASE IF NOT EXISTS college_auth;
-
+CREATE DATABASE college_auth;
 USE college_auth;
 
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  email VARCHAR(100) NOT NULL UNIQUE,
-  password VARCHAR(100) NOT NULL,
-  studentId VARCHAR(50),
-  collegeName VARCHAR(100),
-  firstName VARCHAR(50),
-  lastName VARCHAR(50),
-  phone VARCHAR(15),
-  department VARCHAR(50),
-  degree VARCHAR(50)
+  email VARCHAR(255) UNIQUE NOT NULL,
+  collegeName VARCHAR(255),
+  studentId VARCHAR(100),
+  firstName VARCHAR(100),
+  lastName VARCHAR(100),
+  phone VARCHAR(20),
+  department VARCHAR(100),
+  degree VARCHAR(100),
+  password VARCHAR(255),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS students (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  collegeName VARCHAR(255),
+  studentId VARCHAR(100),
+  firstName VARCHAR(100),
+  lastName VARCHAR(100),
+  phone VARCHAR(20),
+  department VARCHAR(100),
+  degree VARCHAR(100),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS password_reset_otps (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) NOT NULL,
+  otp VARCHAR(10) NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  used BOOLEAN DEFAULT FALSE
 );
