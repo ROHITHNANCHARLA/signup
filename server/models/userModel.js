@@ -23,7 +23,7 @@ CREATE TABLE users (
 */
 
 async function findByEmail(email) {
-  const [rows] = await pool.query(`SELECT * FROM ${TABLE_NAME} WHERE email = ?`, [email]);
+  const [rows] = await pool.query(`SELECT * FROM students WHERE email = ?`, [email]);
   return rows[0];
 }
 

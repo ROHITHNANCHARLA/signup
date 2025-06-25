@@ -100,7 +100,9 @@ export default function Signup() {
 
         <input name="phone" placeholder="Phone" onChange={handleChange} value={form.phone} />
         <input name="department" placeholder="Department" onChange={handleChange} value={form.department} />
+        {errors.department && <p className="error">{errors.department}</p>}
         <input name="degree" placeholder="Degree" onChange={handleChange} value={form.degree} />
+        {errors.degree && <p className="error">{errors.degree}</p>}
 
         <input name="password" type="password" placeholder="Password" onChange={handleChange} value={form.password} />
         {errors.password && <p className="error">{errors.password}</p>}

@@ -64,7 +64,7 @@ router.post("/check-email", (req, res) => {
   const domain = email.split("@")[1];
 
   if (domain === "siddharatha.co.in") {
-    const sql = "SELECT * FROM users WHERE email = ?";
+    const sql = "SELECT * FROM students WHERE email = ?";
     db.query(sql, [email], (err, results) => {
       if (err) {
         return res.status(500).send("Database error");

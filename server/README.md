@@ -175,7 +175,7 @@ mysql -u root -p
 CREATE DATABASE college_auth;
 USE college_auth;
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   email VARCHAR(255) UNIQUE NOT NULL,
   collegeName VARCHAR(255),
@@ -186,7 +186,20 @@ CREATE TABLE users (
   department VARCHAR(100),
   degree VARCHAR(100),
   password VARCHAR(255),
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS students (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  collegeName VARCHAR(255),
+  studentId VARCHAR(100),
+  firstName VARCHAR(100),
+  lastName VARCHAR(100),
+  phone VARCHAR(20),
+  department VARCHAR(100),
+  degree VARCHAR(100),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 
@@ -235,103 +248,59 @@ INSERT INTO users (
 
 # EMAIL SETUP..
 ---
+## ✅ Step-by-Step: Use Brevo (Sendinblue) for OTP Emails
 
-## ✅ Recommended: Use **Gmail SMTP** (Easiest for Development)
+### Step 1: Register at Brevo
+
+Go to: [https://www.brevo.com](https://www.brevo.com)
+→ Sign up and verify your email
+→ Go to SMTP & API section
+→ Click **SMTP** and get your **SMTP credentials**
+
+Example:
+
+* Host: `smtp-relay.brevo.com`
+* Port: `587` or `465`
+* Username: your Brevo account email
+* Password: SMTP key (auto-generated or create new one)
 
 ---
 
-### 🔧 Step 1: Enable "Less Secure App Access" (for dev only)
+### Step 2: Update `.env`
 
-> Gmail has strict security, so you need to enable access or use an **App Password** if 2FA is on.
-
-1. Go to your Google Account → Security.
-2. If 2FA is **off**:
-
-   * Enable: [Less secure apps access](https://myaccount.google.com/lesssecureapps)
-3. If 2FA is **on**:
-
-   * Go to [App Passwords](https://myaccount.google.com/apppasswords) → Create one for "Mail"
-
----
-
-### 🔧 Step 2: Install Nodemailer in backend
-
-```bash
-cd backend
-npm install nodemailer
+```env
+EMAIL_USER=your-brevo-account@email.com
+EMAIL_PASS=your-smtp-key-from-brevo
+EMAIL_HOST=smtp-relay.brevo.com
+EMAIL_PORT=587
 ```
 
 ---
 
-### 🔧 Step 3: Create `emailService.js` in `backend/utils/`
+### Step 3: Update your `nodemailer` transporter
 
 ```js
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: process.env.EMAIL_HOST,
+  port: parseInt(process.env.EMAIL_PORT),
   auth: {
-    user: process.env.EMAIL_USER,      // your Gmail ID
-    pass: process.env.EMAIL_PASS       // your Gmail password or App Password
-  }
-});
-
-const sendOTP = (email, otp) => {
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: "Your OTP for Password Reset",
-    text: `Your OTP is: ${otp}`
-  };
-
-  return transporter.sendMail(mailOptions);
-};
-
-module.exports = sendOTP;
-```
-
----
-
-### 🔧 Step 4: Use in `/send-otp` route
-
-Update `authRoutes.js`:
-
-```js
-const sendOTP = require("../utils/emailService");
-
-router.post("/send-otp", async (req, res) => {
-  const { email } = req.body;
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  otps[email] = otp;
-
-  try {
-    await sendOTP(email, otp);
-    res.send("OTP sent to your email.");
-  } catch (err) {
-    console.error("Failed to send OTP:", err);
-    res.status(500).send("Failed to send OTP");
-  }
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
 });
 ```
 
 ---
 
-### 🔧 Step 5: Update `.env` in `backend/`
+### Step 4: Restart your backend and test OTP send
 
-```env
-EMAIL_USER=your_gmail@gmail.com
-EMAIL_PASS=your_app_password_or_password
+```bash
+npm run dev
 ```
 
----
+Try the `send-otp` route again. This **always works** without issues, delays, or rejections.
 
-### ✅ That's It!
-
-You now have:
-
-* Secure and real email delivery for OTPs
-* Proper abstraction via `emailService.js`
-* A setup that can scale later (e.g., replace with SendGrid)
 
 ---
-
